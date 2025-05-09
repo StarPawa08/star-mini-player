@@ -163,191 +163,37 @@ async function setup() {
     })
 
     addToPlaylistBtn.addEventListener('click', () => {
-        // Show visual feedback that we're processing the action
-        addToPlaylistBtn.style.backgroundColor = 'rgba(46, 80, 255, 0.7)';
-
-        // Store the current URL to return to it later
-        const currentUrl = window.location.href;
-
-        // Find the song title and artist to use for searching
-        const songTitle = currentSongInfo.title;
-        let songArtist = currentSongInfo.artist;
-
-        if (!songTitle || songTitle === "Nothing is playing") {
-            console.log("No song is currently playing");
-            // Reset the button style after a delay
-            setTimeout(() => {
-                addToPlaylistBtn.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-            }, 1000);
+        if (currentSongInfo.title == null || currentSongInfo.title === ''){
             return;
         }
-
-        // Clean up the artist string to get just the main artist
-        // This handles cases like "Artist1 - Artist2" or "Artist feat. Someone"
-        if (songArtist.includes(' - ')) {
-            songArtist = songArtist.split(' - ')[0].trim();
-        }
-        if (songArtist.toLowerCase().includes('feat.')) {
-            songArtist = songArtist.split('feat.')[0].trim();
-        }
-
-        // Try the direct method first (clicking the menu in the player bar)
-        const moreOptionsBtn = document.querySelector('.ytmusic-player-bar.middle-controls button.dropdown-trigger');
-        if (moreOptionsBtn) {
-            moreOptionsBtn.click();
-
-            // Wait for the menu to appear
-            setTimeout(() => {
-                const menuItems = document.querySelectorAll('tp-yt-paper-listbox.dropdown-content tp-yt-paper-item');
-                let foundAddToPlaylist = false;
-
-                for (const menuItem of menuItems) {
-                    if (menuItem.textContent.trim().toLowerCase().includes('add to playlist') || 
-                        menuItem.textContent.trim().toLowerCase().includes('añadir a la lista')) {
-                        menuItem.click();
-                        foundAddToPlaylist = true;
-                        break;
+        try {
+            // En lugar de intentar usar chrome.tabs directamente, enviamos un mensaje al popup
+            chrome.runtime.sendMessage({ action: "addToPlaylist" }, (response) => {
+                // Verificar si hay un error en la última operación de runtime
+                if (chrome.runtime.lastError) {
+                    console.error("Error al enviar mensaje al popup:", chrome.runtime.lastError);
+                    // No mostrar alerta para evitar interrumpir la experiencia del usuario
+                    // Si el popup no está abierto, el background script debería manejar la solicitud
+                    return;
+                }
+                
+                // Si llegamos aquí, el mensaje fue enviado correctamente pero la respuesta indica error
+                if (!response || !response.success) {
+                    console.error("No se pudo completar la acción 'Añadir a playlist' en YouTube Music:", 
+                        response ? response.reason || "Razón desconocida" : "No hay respuesta");
+                    
+                    // Solo mostrar alerta si hay un problema real (no si simplemente el popup está cerrado)
+                    if (response && response.reason && response.reason !== "No YouTube Music tab found") {
+                        alert("Hubo un problema al intentar interactuar con YouTube Music. Intenta abrir YouTube Music primero.");
                     }
                 }
-
-                // If we didn't find the "Add to playlist" option, try the search method
-                if (!foundAddToPlaylist) {
-                    // Close the menu first
-                    document.body.click();
-
-                    // Wait for the menu to close
-                    setTimeout(() => {
-                        // Open YouTube Music's search interface
-                        const searchButton = document.querySelector('ytmusic-search-box');
-                        if (searchButton) {
-                            // Focus the search box
-                            searchButton.click();
-
-                            // Wait for the search box to be ready
-                            setTimeout(() => {
-                                // Get the input element
-                                const searchInput = document.querySelector('input.ytmusic-search-box');
-                                if (searchInput) {
-                                    // Clear any existing text
-                                    searchInput.value = '';
-
-                                    // Set the search query to the current song title and artist
-                                    const searchQuery = `${songTitle} ${songArtist}`;
-                                    searchInput.value = searchQuery;
-
-                                    // Dispatch events to simulate typing
-                                    searchInput.dispatchEvent(new Event('input', { bubbles: true }));
-
-                                    // Press Enter to perform the search
-                                    setTimeout(() => {
-                                        searchInput.dispatchEvent(new KeyboardEvent('keydown', { 
-                                            key: 'Enter',
-                                            code: 'Enter',
-                                            keyCode: 13,
-                                            which: 13,
-                                            bubbles: true
-                                        }));
-
-                                        // After search results appear, look for the song and open its menu
-                                        setTimeout(() => {
-                                            // Look for the song in search results
-                                            const songItems = document.querySelectorAll('ytmusic-responsive-list-item-renderer');
-                                            let foundSong = false;
-
-                                            for (const item of songItems) {
-                                                const titleElement = item.querySelector('.title');
-                                                const subtitleElement = item.querySelector('.subtitle');
-
-                                                if (titleElement && subtitleElement) {
-                                                    const itemTitle = titleElement.textContent.trim();
-                                                    const itemSubtitle = subtitleElement.textContent.trim();
-
-                                                    // Check if this is likely our song
-                                                    if (itemTitle.toLowerCase().includes(songTitle.toLowerCase()) && 
-                                                        itemSubtitle.toLowerCase().includes(songArtist.toLowerCase())) {
-
-                                                        foundSong = true;
-
-                                                        // Find and click the menu button for this song
-                                                        const menuButton = item.querySelector('button.dropdown-trigger');
-                                                        if (menuButton) {
-                                                            menuButton.click();
-
-                                                            // Wait for menu to appear and click "Add to playlist"
-                                                            setTimeout(() => {
-                                                                const menuItems = document.querySelectorAll('tp-yt-paper-listbox.dropdown-content tp-yt-paper-item');
-                                                                for (const menuItem of menuItems) {
-                                                                    if (menuItem.textContent.trim().toLowerCase().includes('add to playlist') || 
-                                                                        menuItem.textContent.trim().toLowerCase().includes('añadir a la lista')) {
-                                                                        menuItem.click();
-
-                                                                        // Wait for the playlist dialog to appear, then navigate back
-                                                                        setTimeout(() => {
-                                                                            // Navigate back to the original page
-                                                                            if (currentUrl && window.location.href !== currentUrl) {
-                                                                                window.history.back();
-                                                                            }
-
-                                                                            // Reset the button style
-                                                                            setTimeout(() => {
-                                                                                addToPlaylistBtn.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-                                                                            }, 500);
-                                                                        }, 1000);
-
-                                                                        break;
-                                                                    }
-                                                                }
-                                                            }, 300);
-
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                            }
-
-                                            // If we didn't find the song, reset the button
-                                            if (!foundSong) {
-                                                // Navigate back to the original page
-                                                if (currentUrl && window.location.href !== currentUrl) {
-                                                    window.history.back();
-                                                }
-
-                                                // Reset the button style
-                                                setTimeout(() => {
-                                                    addToPlaylistBtn.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-                                                }, 500);
-                                            }
-                                        }, 1500); // Increased timeout for search results
-                                    }, 300);
-                                } else {
-                                    // Reset the button style if search input not found
-                                    setTimeout(() => {
-                                        addToPlaylistBtn.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-                                    }, 500);
-                                }
-                            }, 300);
-                        } else {
-                            // Reset the button style if search button not found
-                            setTimeout(() => {
-                                addToPlaylistBtn.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-                            }, 500);
-                        }
-                    }, 300);
-                } else {
-                    // Reset the button style after successful direct method
-                    setTimeout(() => {
-                        addToPlaylistBtn.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-                    }, 1000);
-                }
-            }, 300);
-        } else {
-            // If more options button isn't available, try the search method directly
-            // (Code for search method would be duplicated here, but for brevity I'm just resetting the button)
-            setTimeout(() => {
-                addToPlaylistBtn.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-            }, 500);
+            });
+        } catch (error) {
+            console.error("Error general al intentar añadir a playlist:", error);
+            alert(`Ocurrió un error: ${error.message || "desconocido"}`);
         }
     });
+
 
     if (volumeSlider) {
         volumeSlider.addEventListener('input', () => {
@@ -415,6 +261,9 @@ async function setup() {
     }
 
 }
+
+// La función addToPlaylist ha sido movida al popup para poder usar las APIs de chrome.tabs y chrome.scripting
+
 
 async function extractSongInfo() {
     const titleElement = document.querySelector('.title.style-scope.ytmusic-player-bar');
