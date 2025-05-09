@@ -1,0 +1,169 @@
+﻿:root{
+    --default-back-color : #EADDFF;
+    --default-text-color : #4F378A;
+    --default-text-secondary-color: #625B71;
+}
+
+#mini-player-root {
+    width: 100%;
+    height: 100%;
+    background-color: var(--default-back-color);
+    color: var(--default-text-color);
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    padding: 0 3px 1px;
+    border-radius: 10px;
+    transition: all 0.2s ease-in-out;
+}
+
+body{
+    background-color: var(--default-back-color);
+}
+
+.player-header {
+    text-align: left;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    display: flex;
+    flex-shrink: 1;
+    flex-direction: column;
+}
+
+.song-title {
+    flex-shrink: 1;
+    font-weight: bold;
+    font-size: 12px;
+    max-width: 240px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 1px;
+    padding: 0;
+    margin-bottom: 4px;
+}
+
+.song-artist {
+    flex-shrink: 1;
+    font-size: 10px;
+    max-width: 240px;
+    color: var(--default-text-secondary-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 0;
+    margin-bottom: 2px;
+}
+
+.player-body {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.cover {
+    width: 40px;
+    height: 40px;
+    overflow: hidden;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #4CAF50;
+}
+
+.cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cover-placeholder {
+    width: 40px;
+    height: 40px;
+    background-color: #4CAF50;
+    border-radius: 8px;
+}
+
+.controls {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.control-btn {
+    color: var(--default-text-color);
+    background: none;
+    border: none;
+    border-radius: 10px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.control-btn > svg{
+    vertical-align: middle;
+    horiz-align: center;
+}
+
+.hide{
+    display: none;
+}
+
+.control-btn:hover {
+    color: #58428d;
+    background-color: #c4bad3;
+}
+
+.control-btn.active {
+    color: #2e50ff;
+}
+
+.d-flex{
+    display: flex;
+}
+
+.pause{
+    margin-left: 1px;
+    margin-right: 1px;
+}
+
+.progress-container {
+    width: 100%;
+    max-width: 270px;
+    height: 4px;
+    background-color: #333;
+    margin-top: 5px;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: #a978ff;
+    width: 0;
+    transition: width 0.5s;
+}
+
+@media (max-height: 101px) {
+    .song-artist{
+        display: none;
+    }
+}
+
+@media (max-height: 90px) {
+    .song-title{
+        display: none;
+    }
+}
+
+@media (max-width: 250px) {
+    .repeat {
+        display: none;
+    }
+}
+
+@media (max-width: 210px) {
+    .shuffle {
+        display: none;
+    }
+}
