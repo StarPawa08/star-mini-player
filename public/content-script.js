@@ -167,22 +167,16 @@ async function setup() {
             return;
         }
         try {
-            // En lugar de intentar usar chrome.tabs directamente, enviamos un mensaje al popup
             chrome.runtime.sendMessage({ action: "addToPlaylist" }, (response) => {
-                // Verificar si hay un error en la última operación de runtime
                 if (chrome.runtime.lastError) {
                     console.error("Error al enviar mensaje al popup:", chrome.runtime.lastError);
-                    // No mostrar alerta para evitar interrumpir la experiencia del usuario
-                    // Si el popup no está abierto, el background script debería manejar la solicitud
                     return;
                 }
                 
-                // Si llegamos aquí, el mensaje fue enviado correctamente pero la respuesta indica error
                 if (!response || !response.success) {
                     console.error("No se pudo completar la acción 'Añadir a playlist' en YouTube Music:", 
                         response ? response.reason || "Razón desconocida" : "No hay respuesta");
                     
-                    // Solo mostrar alerta si hay un problema real (no si simplemente el popup está cerrado)
                     if (response && response.reason && response.reason !== "No YouTube Music tab found") {
                         alert("Hubo un problema al intentar interactuar con YouTube Music. Intenta abrir YouTube Music primero.");
                     }
@@ -261,9 +255,6 @@ async function setup() {
     }
 
 }
-
-// La función addToPlaylist ha sido movida al popup para poder usar las APIs de chrome.tabs y chrome.scripting
-
 
 async function extractSongInfo() {
     const titleElement = document.querySelector('.title.style-scope.ytmusic-player-bar');

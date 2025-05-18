@@ -7,10 +7,8 @@ function App() {
     const [currentTab, setCurrentTab] = useState<chrome.tabs.Tab | null>(null);
     const [status, setStatus] = useState("Ready");
 
-    // Función para añadir a playlist desde la pestaña de YTM
     const addToPlaylist = useCallback(async () => {
         try {
-            // Buscar pestañas de YouTube Music
             const tabs = await chrome.tabs.query({ url: "*://music.youtube.com/*" });
             
             if (tabs.length === 0) {
@@ -19,54 +17,47 @@ function App() {
                 return false;
             }
             
-            const ytmTab = tabs[0]; // Usar la primera pestaña de YTM encontrada
+            const ytmTab = tabs[0];
             
-            // Ejecutar la función de clics en la pestaña de YTM
             const injectionResults = await chrome.scripting.executeScript({
                 target: { tabId: ytmTab.id! },
                 func: function addToPlaylistInYTM() {
-                    // Esta función se ejecuta en el contexto de la pestaña de YouTube Music
                     function clickAddToPlaylist() {
-                        // Intenta acceder al botón "Añadir a playlist"
                         let botonesNavegacion = document.querySelectorAll<HTMLElement>("#navigation-endpoint");
                         const botonAnadirAPlaylistDirecto = botonesNavegacion.length > 1 ? botonesNavegacion[1] : null;
 
-                        // Verifica si el botón ya está visible
                         if (botonAnadirAPlaylistDirecto && botonAnadirAPlaylistDirecto.offsetParent !== null) {
                             botonAnadirAPlaylistDirecto.click();
-                            return true; // Éxito
+                            return true;
                         } else {
-                            // Si no, intenta abrir el menú de opciones primero
                             const rootElement = document.getElementsByClassName("middle-controls-buttons style-scope ytmusic-player-bar")[0];
                             if (!rootElement) {
                                 console.error("YTMusic Helper: No se encontró el elemento raíz de los controles.");
-                                return false; // Fallo
+                                return false;
                             }
 
-                            const botonMenu = rootElement.querySelector<HTMLElement>(".menu button"); // Botón de tres puntos
+                            const botonMenu = rootElement.querySelector<HTMLElement>(".menu button");
                             if (!botonMenu) {
                                 console.error("YTMusic Helper: No se encontró el botón de menú.");
-                                return false; // Fallo
+                                return false;
                             }
 
-                            botonMenu.click(); // Abre el menú.
-                            botonMenu.click(); // Doble click para asegurar apertura
+                            botonMenu.click();
+                            botonMenu.click();
 
-                            // Devuelve una Promesa porque hay un setTimeout involucrado
                             return new Promise((resolve) => {
                                 setTimeout(() => {
-                                    // Reintentamos encontrar el botón "Añadir a playlist" después de abrir el menú
                                     botonesNavegacion = document.querySelectorAll("#navigation-endpoint");
                                     const botonAnadirEnMenu = botonesNavegacion.length > 1 ? botonesNavegacion[1] : null;
 
                                     if (botonAnadirEnMenu) {
                                         botonAnadirEnMenu.click();
-                                        resolve(true); // Éxito
+                                        resolve(true);
                                     } else {
                                         console.error("YTMusic Helper: No se encontró el botón 'Añadir a playlist' en el menú tras el retraso.");
-                                        resolve(false); // Fallo
+                                        resolve(false);
                                     }
-                                }, 500); // Retraso de 500ms para que aparezca el menú
+                                }, 500);
                             });
                         }
                     }
@@ -74,12 +65,10 @@ function App() {
                     return clickAddToPlaylist();
                 }
             });
-
-            // Verificar el resultado de la inyección
             if (injectionResults && injectionResults[0] && injectionResults[0].result) {
-                // Si los clics fueron exitosos, enfocar la pestaña y su ventana
-                await chrome.tabs.update({openerTabId: ytmTab.id!, active: true }); // Activa la pestaña
-                await chrome.windows.update(ytmTab.windowId, { focused: true }); // Trae la ventana al frente
+
+                await chrome.tabs.update({openerTabId: ytmTab.id!, active: true });
+                await chrome.windows.update(ytmTab.windowId, { focused: true });
                 console.log("Acción 'Añadir a playlist' iniciada en YouTube Music. La pestaña ha sido enfocada.");
                 return true;
             } else {
@@ -109,19 +98,17 @@ function App() {
 
         checkTab();
 
-        // Configurar el listener de mensajes para comunicarse con el content script
         const messageListener = (message: unknown, _sender: chrome.runtime.MessageSender, sendResponse: (response?: unknown) => void) => {
             if ((message as { action: string }).action === "addToPlaylist") {
                 addToPlaylist().then(success => {
                     sendResponse({ success });
                 });
-                return true; // Indica que la respuesta se enviará asincrónicamente
+                return true;
             }
         };
         
         chrome.runtime.onMessage.addListener(messageListener);
         
-        // Limpieza al desmontar
         return () => {
             chrome.runtime.onMessage.removeListener(messageListener);
         };
