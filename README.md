@@ -1,54 +1,42 @@
-# React + TypeScript + Vite
+# 🎵 Star's Mini Player for YouTube Music
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Una extensión de Chrome que ofrece un mini reproductor flotante para YouTube Music, permitiéndote controlar tu música sin cambiar de pestaña.
 
-Currently, two official plugins are available:
+## 🚀 Características
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- ✅ **Mini reproductor flotante (Picture-in-Picture)**: Controla tu música desde una ventana flotante sin necesidad de permanecer en la pestaña de YouTube Music.
+- ✅ **Controles de reproducción**: Incluye botones de Play/Pause, Anterior, Siguiente, Aleatorio y Repetir.
+- ✅ **Sincronización en tiempo real**: El mini reproductor se actualiza instantáneamente al cambiar de canción o al interactuar con los controles en YouTube Music.
+- ✅ **Soporte multilingüe**: Disponible en inglés y español.
+- ✅ **Control de volumen**: Ajusta el volumen directamente desde el mini reproductor.
+- ✅ **Atajo para añadir a la playlist**: Haz clic en el ícono de la canción para activar el botón de añadir a la playlist directamente desde el mini reproductor.
 
-## Expanding the ESLint configuration
+## 🔮 Próximas características
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- ✨ **Opciones de personalización**: Cambia colores y elige qué elementos mostrar en el mini reproductor.
+- ✨ **Soporte para más idiomas**: Ampliación de compatibilidad con idiomas adicionales.
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## 🧑‍💻 Sobre el desarrollador
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+¡Hola! Soy **StarPawa**, un desarrollador apasionado por crear herramientas que mejoren la experiencia del usuario. Después de notar que algunos reproductores de música ofrecían un mini reproductor PiP, pensé que sería genial que YouTube Music también tuviera esta función. Así nació esta extensión, diseñada para hacer que YouTube Music sea más conveniente y accesible. ¡Espero que la disfrutes y estoy siempre abierto a comentarios para seguir mejorándola!
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 📦 Instalación para desarrollo
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+1. Descarga o clona este repositorio.
+2. Navega al directorio del proyecto.
+3. Instala las dependencias:
+
+   ```bash
+   npm install
+   
+4. Abre Chrome y ve a chrome://extensions/.
+
+5. Activa el "Modo de desarrollador" en la esquina superior derecha.
+
+6. Haz clic en "Cargar extensión descomprimida" y selecciona la carpeta dist generada por Vite.
+
+📫 Contacto
+
+Si tienes sugerencias, encuentras errores o deseas contribuir, no dudes en abrir un issue o enviar un pull request. También puedes contactarme directamente:
+
+Correo electrónico: uriel_villanueva@live.com
